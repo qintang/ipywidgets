@@ -79,6 +79,44 @@ def interactive_output(f, controls):
     observer(None)
     return out
 
+def interactive_output_manual(f, controls):
+    """Connect widget controls to a function.
+
+    This function does not generate a user interface for the widgets (unlike `interact`).
+    This enables customisation of the widget user interface layout.
+    The user interface layout must be defined and displayed manually.
+    controls must contain `{'button':buttion1}`,when click button,will ececute `f` function.
+    demo:
+        a = widgets.IntSlider()
+        b = widgets.IntSlider()
+        c = widgets.IntSlider()
+        button = widgets.Button(description="click")
+        ui = widgets.HBox([a, b, c,button])
+        def f(a, b, c):
+            display((a, b, c))
+        out = widgets.interactive_output_manual(f, {'a': a, 'b': b, 'c': c,'button',button})
+
+        display(ui, out)
+    """
+
+    out = Output()
+    def observer(change):
+        kwargs = {k:v.value for k,v in controls.items() if k!='button'}
+        show_inline_matplotlib_plots()
+        with out:
+            clear_output(wait=True)
+            f(**kwargs)
+            show_inline_matplotlib_plots()
+    # find button,and register click
+    for k,w in controls.items():
+        #w.observe(observer, 'value')
+        if k=='button':
+            w.on_click(observer)
+        
+    show_inline_matplotlib_plots()
+    observer(None)
+    return out
+
 
 def _matches(o, pattern):
     """Match a pattern of types in a sequence."""
